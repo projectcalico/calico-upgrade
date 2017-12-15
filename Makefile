@@ -10,8 +10,8 @@ CALICO_BUILD?=calico/go-build:$(GO_BUILD_VER)
 
 ###############################################################################
 # Version directory
-CALICO_UPGR_DIR=$(dir $(realpath $(lastword $(MAKEFILE_LIST))))
-VERSIONS_FILE?=$(CALICO_UPGR_DIR)../_data/versions.yml
+CALICO_UPGRADE_DIR=$(dir $(realpath $(lastword $(MAKEFILE_LIST))))
+VERSIONS_FILE?=$(CALICO_UPGRADE_DIR)../_data/versions.yml
 
 # Now use ?= to allow the versions derived from versions.yml to be
 # overriden (by the environment).
@@ -55,11 +55,11 @@ LDFLAGS=-ldflags "-X $(PACKAGE_NAME)/pkg/commands.VERSION=$(CALICO_UPGRADE_VERSI
 
 LIBCALICOGO_PATH?=none
 
-calico/upgrade: $(UPGRADE_CONTAINER_CREATED)      ## Create the calico/upgrade image
+calico/upgrade: $(CALICO_UPGRADE_CONTAINER_CREATED)      ## Create the calico/upgrade image
 
 .PHONY: clean-calico-upgrade
 clean-calico-upgrade:
-	docker rmi $(UPGRADE_CONTAINER_NAME):latest || true
+	docker rmi $(CALICO_UPGRADE_CONTAINER_NAME):latest || true
 
 # Use this to populate the vendor directory after checking out the repository.
 # To update upstream dependencies, delete the glide.lock file first.
@@ -80,8 +80,8 @@ vendor: glide.yaml
       glide install -strip-vendor'
 
 # build calico_upgrade image
-$(UPGRADE_CONTAINER_CREATED): pkg/Dockerfile.calico_upgrade dist/calico-upgrade
-	docker build -t $(UPGRADE_CONTAINER_NAME) -f pkg/Dockerfile.calico_upgrade .
+$(CALICO_UPGRADE_CONTAINER_CREATED): pkg/Dockerfile.calico_upgrade dist/calico-upgrade
+	docker build -t $(CALICO_UPGRADE_CONTAINER_NAME) -f pkg/Dockerfile.calico_upgrade .
 	touch $@
 
 ## Build calico-upgrade
