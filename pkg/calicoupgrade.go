@@ -21,7 +21,7 @@ import (
 	"github.com/docopt/docopt-go"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/projectcalico/calico/calico_upgrade/pkg/commands"
+	"github.com/projectcalico/calico-upgrade/pkg/commands"
 	"github.com/projectcalico/libcalico-go/lib/logutils"
 )
 

@@ -27,27 +27,37 @@ spec:
   ipip:
     enabled: true
     mode: cross-subnet
-  nat-outgoing: true
-  disabled: false
 
 ---
 
 apiVersion: v1
-kind: policy
+kind: ipPool
 metadata:
-  name: allow-tcp-6379
+  cidr: 10.2.0.0/16
 spec:
-  selector: role == 'database'
-  types:
-  - ingress
-  - egress
-  ingress:
-  - action: allow
-    protocol: tcp
-    source:
-      selector: role == 'frontend'
-    destination:
-      ports:
-      - 6379
-  egress:
-  - action: allow
+  ipip:
+    enabled: false
+  nat-outgoing: true
+
+---
+
+apiVersion: v1
+kind: ipPool
+metadata:
+  cidr: 10.3.0.0/16
+spec:
+  ipip:
+    enabled: true
+    mode: always
+  nat-outgoing: true
+  disabled: true
+
+---
+
+apiVersion: v1
+kind: ipPool
+metadata:
+  cidr: 10.4.0.0/16
+spec:
+  disabled: true
+

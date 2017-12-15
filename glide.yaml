@@ -1,4 +1,4 @@
-package: github.com/projectcalico/calico/calico_upgrade
+package: github.com/projectcalico/calico-upgrade
 import:
 - package: github.com/sirupsen/logrus
   version: ^1.0.3
