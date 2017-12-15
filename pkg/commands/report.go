@@ -20,7 +20,7 @@ import (
 
 	"path/filepath"
 
-	"github.com/projectcalico/calico/calico_upgrade/pkg/constants"
+	"github.com/projectcalico/calico-upgrade/pkg/constants"
 	"github.com/projectcalico/libcalico-go/lib/upgrade/migrator"
 	"github.com/projectcalico/yaml"
 )
