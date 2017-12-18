@@ -15,9 +15,10 @@
 package constants
 
 import (
-	"github.com/projectcalico/libcalico-go/lib/upgrade/migrator/clients"
 	"os"
 	"path/filepath"
+
+	"github.com/projectcalico/libcalico-go/lib/upgrade/migrator/clients"
 )
 
 const (

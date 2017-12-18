@@ -16,7 +16,7 @@ VERSIONS_FILE?=$(CALICO_UPGRADE_DIR)../_data/versions.yml
 # Now use ?= to allow the versions derived from versions.yml to be
 # overriden (by the environment).
 CALICOCTL_VER?=master
-CALICOCTL_V2_VER?=v1.6.2
+CALICOCTL_V2_VER?=v1.6.x-series
 
 # Construct the calico/ctl names we'll use to download calicoctl and extract the
 # binaries.
@@ -217,13 +217,13 @@ dist/calicoctl:
 	-docker rm -f calicoctl
 
 dist/calicoctlv2:
-	-docker rm -f calicoctl
+	-docker rm -f calicoctlv2
 	docker pull $(CTL_CONTAINER_V2_NAME)
 	docker create --name calicoctlv2 $(CTL_CONTAINER_V2_NAME)
 	docker cp calicoctlv2:calicoctl dist/calicoctlv2 && \
 	  test -e dist/calicoctlv2 && \
 	  touch dist/calicoctlv2
-	-docker rm -f calicoctl
+	-docker rm -f calicoctlv2
 
 ## Run etcd as a container (calico-etcd)
 run-etcd: stop-etcd

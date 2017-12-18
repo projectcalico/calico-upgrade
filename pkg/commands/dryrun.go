@@ -109,9 +109,20 @@ Description:
 }
 
 // validate performs the migration validation that is shared by both the dry-run
-// command and the start command. Returns true if there is data to migrate, false
-// otherwise.
+// command and the start command. Returns the migration data details if validation
+// succeeds, otherwise will os.Exit with a non-zero rc.
 func validate(m migrator.Interface, ch *cliHelper, output string, ignoreV3Data bool) *migrator.MigrationData {
+	// First check whether we can migrate from the current version.
+	err := m.CanMigrate()
+	if err != nil {
+		ch.Separator()
+		ch.Msg("Failed to validate v1 to v3 conversion.")
+		ch.Bullet(err.Error())
+		ch.NewLine()
+		os.Exit(1)
+		return nil
+	}
+
 	// Validate the conversion and that the destination is empty.
 	data, cerr := m.ValidateConversion()
 	clean, derr := m.IsDestinationEmpty()
