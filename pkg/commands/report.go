@@ -76,22 +76,6 @@ func printAndOutputReport(output string, data *migrator.MigrationData) {
 		file.Close()
 	}
 
-	if len(data.HandledByPolicyCtrl) != 0 {
-		fp := filepath.Join(output, constants.FilePolicyController)
-		fmt.Printf("- handled by policy controller: %s\n", fp)
-
-		file, err := os.Create(fp)
-		if err != nil {
-			fmt.Printf("Unable to open report file for writing: %s\n", fp)
-		} else {
-			for _, k := range data.HandledByPolicyCtrl {
-				fmt.Fprintf(file, "%s\n", k.String())
-			}
-		}
-		file.Sync()
-		file.Close()
-	}
-
 	if len(data.NameClashes) != 0 {
 		fp := filepath.Join(output, constants.FileNameClashes)
 		fmt.Printf("- (errors) name clashes: %s\n", fp)

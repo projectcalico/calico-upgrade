@@ -15,9 +15,9 @@
 package constants
 
 import (
+	"github.com/projectcalico/libcalico-go/lib/upgrade/migrator/clients"
 	"os"
 	"path/filepath"
-	"github.com/projectcalico/libcalico-go/lib/upgrade/migrator/clients"
 )
 
 const (
@@ -27,7 +27,6 @@ const (
 	FileConvertedNames   = "convertednames"
 	FileNameClashes      = "nameclashes"
 	FileConversionErrors = "conversionerrors"
-	FilePolicyController = "policycontroller"
 	FileValidationErrors = "validationerrors"
 
 	defaultOutputDir = "calico-upgrade-report"
@@ -37,7 +36,6 @@ var AllReportFiles = []string{
 	FileConvertedNames,
 	FileNameClashes,
 	FileConversionErrors,
-	FilePolicyController,
 	FileValidationErrors,
 }
 
