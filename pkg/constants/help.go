@@ -45,12 +45,6 @@ environments are all prefixed with 'APIV1_', for example:
       resource. Provided the v1 format data is correct, conversion errors
       should be rare.
 
-    ` + FilePolicyController + `
-      This contains a list of the v1 resources that we are not migrating
-      because the name of the resource indicates that the resource is created
-      by the policy controller and will automatically be created when the
-      policy controller is upgraded.
-
     ` + FileValidationErrors + `
       This contains a list of errors that occurred when validating the v3
       resources that were otherwise successfully converted from v1. These
