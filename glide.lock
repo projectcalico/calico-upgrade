@@ -1,5 +1,5 @@
-hash: 80e236da3b6827ac7188f0fa1d21eb9e57446382e5674393f94f83bd19e149d1
-updated: 2017-12-18T11:59:07.262934158-08:00
+hash: 8abfc005e2e07df24182bd375ea57928682192b43fc14b7475bc0e34c3fd5d14
+updated: 2017-12-18T21:35:20.8990286Z
 imports:
 - name: cloud.google.com/go
   version: 3b1ae45394a234c385be014e9a488f2bb6eef821
@@ -135,7 +135,7 @@ imports:
 - name: github.com/projectcalico/go-yaml-wrapper
   version: 598e54215bee41a19677faa4f0c32acd2a87eb56
 - name: github.com/projectcalico/libcalico-go
-  version: eedad5b26ac38e7b03b8b3de11b46663e5a8ce00
+  version: df7a64dda15a243b3da10105aab7678017a0a2ec
   subpackages:
   - lib/apiconfig
   - lib/apis/v1
@@ -194,7 +194,7 @@ imports:
   - internal/bitbucket.org/ww/goautoneg
   - model
 - name: github.com/prometheus/procfs
-  version: a6e9df898b1336106c743392c48ee0b71f5c4efa
+  version: f98634e408857669d61064b283c4cde240622865
   subpackages:
   - xfs
 - name: github.com/PuerkitoBio/purell
@@ -288,7 +288,7 @@ imports:
 - name: gopkg.in/yaml.v2
   version: 53feefa2559fb8dfa8d81baad31be332c97d6c77
 - name: k8s.io/api
-  version: 4df58c811fe2e65feb879227b2b245e4dc26e7ad
+  version: 9b9dca205a15b6ce9ef10091f05d60a13fdcf418
   subpackages:
   - admissionregistration/v1alpha1
   - apps/v1beta1
@@ -315,7 +315,7 @@ imports:
   - storage/v1
   - storage/v1beta1
 - name: k8s.io/apimachinery
-  version: 019ae5ada31de202164b118aee88ee2d14075c31
+  version: 5134afd2c0c91158afac0d8a28bd2177185a3bcc
   subpackages:
   - pkg/api/equality
   - pkg/api/errors
