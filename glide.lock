@@ -1,5 +1,5 @@
-hash: c9ef8a667245d454bb6aa91e66085af1e19e1dcfc755e9a0eea4d653a691a01f
-updated: 2017-12-19T14:33:01.915159904Z
+hash: d1f69189b2a22cf415e3126c8c55c3f55e5c2a06b16e4b05a8cd38da7ee0a321
+updated: 2017-12-19T18:48:11.542002933Z
 imports:
 - name: cloud.google.com/go
   version: 3b1ae45394a234c385be014e9a488f2bb6eef821
@@ -14,7 +14,7 @@ imports:
   - autorest/azure
   - autorest/date
 - name: github.com/beorn7/perks
-  version: 3ac7bf7a47d159a033b107610db8a1b6575507a4
+  version: 4c0e84591b9aa9e6dcfdf3e020114cd81f89d5f9
   subpackages:
   - quantile
 - name: github.com/coreos/etcd
@@ -33,7 +33,7 @@ imports:
   - pkg/types
   - version
 - name: github.com/coreos/go-semver
-  version: 8ab6407b697782a06568d4b7f1db25550ec2e4c6
+  version: 1817cd4bea52af76542157eeabd74b057d1a199e
   subpackages:
   - semver
 - name: github.com/davecgh/go-spew
@@ -119,7 +119,7 @@ imports:
   - jlexer
   - jwriter
 - name: github.com/matttproud/golang_protobuf_extensions
-  version: fc2b8d3a73c4867e51861bbdd5ae3c1f0869dd6a
+  version: c12348ce28de40eed0136aa2b644d0ee0650e56c
   subpackages:
   - pbutil
 - name: github.com/pborman/uuid
@@ -135,7 +135,7 @@ imports:
 - name: github.com/projectcalico/go-yaml-wrapper
   version: 598e54215bee41a19677faa4f0c32acd2a87eb56
 - name: github.com/projectcalico/libcalico-go
-  version: c63959043fbfe61db5795781c7a6c848cf2cbe0d
+  version: 7c2de5ed8c029f222d87fc849b54c4075ef3173f
   subpackages:
   - lib/apiconfig
   - lib/apis/v1
@@ -184,17 +184,17 @@ imports:
   subpackages:
   - prometheus
 - name: github.com/prometheus/client_model
-  version: fa8ad6fec33561be4280a8f0514318c79d7f6cb6
+  version: 99fa1f4be8e564e8a6b613da7fa6f46c9edafc6c
   subpackages:
   - go
 - name: github.com/prometheus/common
-  version: 49fee292b27bfff7f354ee0f64e1bc4850462edf
+  version: 2e54d0b93cba2fd133edc32211dcc32c06ef72ca
   subpackages:
   - expfmt
   - internal/bitbucket.org/ww/goautoneg
   - model
 - name: github.com/prometheus/procfs
-  version: a1dba9ce8baed984a2495b658c82687f8157b98f
+  version: f98634e408857669d61064b283c4cde240622865
   subpackages:
   - xfs
 - name: github.com/PuerkitoBio/purell
