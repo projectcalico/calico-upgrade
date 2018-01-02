@@ -27,33 +27,47 @@ import (
 
 func ensureDirectory(output string) {
 	// Make sure the output directory is created.
+	ch := &cliHelper{}
+	ch.Msg("Preparing reports directory")
+	ch.Bullet("creating report directory if it does not exist")
 	err := os.MkdirAll(output, os.ModePerm)
 	if err != nil {
-		fmt.Println("Unable to create output directory for report: ", output)
-		fmt.Println(constants.Exiting)
-		os.Exit(1)
+		ch.Bullet(fmt.Sprintf("unable to create output directory for report: %s", output))
+		outputCheckPermsAndExit(output)
 	}
-
-	fmt.Println("Removing reports from previous runs")
 
 	// Make sure we are able to write to each of the files that we need to write to
 	// (and delete any current entries).
+	ch.Bullet("validating permissions and removing old reports")
 	for _, f := range constants.AllReportFiles {
 		fp := filepath.Join(output, f)
 		file, err := os.OpenFile(fp, os.O_RDWR|os.O_CREATE, os.ModePerm)
 		if err != nil {
-			fmt.Println("Unable to open report file for writing: ", file)
-			fmt.Println(constants.Exiting)
-			os.Exit(1)
+			ch.Bullet(fmt.Sprintf("unable to open report file for writing: %s", fp))
+			outputCheckPermsAndExit(output)
 		}
 		file.Close()
 		err = os.Remove(fp)
 		if err != nil {
-			fmt.Println("Unable to delete report file: ", file)
-			fmt.Println(constants.Exiting)
-			os.Exit(1)
+			ch.Bullet(fmt.Sprintf("unable to delete report file: %s", fp))
+			outputCheckPermsAndExit(output)
 		}
 	}
+}
+
+// outputCheckPermsAndExit displays a generic message for the user to check the
+// file permissions on the reports directory.
+func outputCheckPermsAndExit(output string) {
+	ch := &cliHelper{}
+	ch.Separator()
+	ch.Error("Unable to prepare the reports directory for writing the migration reports. " +
+		"Please ensure your file permissions allow the following:")
+	ch.Bullet(fmt.Sprintf("creation of the output directory if it doesn't already exist " +
+		"(output directory is %s)", output))
+	ch.Bullet("creation and deletion of files in the output directory.")
+	ch.Msg("If required, use the --output-dir option to specify a different output directory.")
+	ch.NewLine()
+	os.Exit(1)
 }
 
 // printAndOutputReport writes out a set of report files and outputs the
