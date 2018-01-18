@@ -41,9 +41,9 @@ CONVERT_ERROR_MSG = "ERROR: Error converting data, check output for details and 
 class TestCalicoUpgrade(TestBase):
 
     @parameterized.expand([
-        ("bgppeer_long_node_name", False),
-        ("bgppeer_dotted_asn", False),
-        ("hep_tame", False),
+        ("bgppeer_long_node_name", True),
+        ("bgppeer_dotted_asn", True),
+        ("hep_tame", True),
         ("hep_mixed_ip", False),
         ("hep_long_fields", False),
         ("ippool_mixed", False),
@@ -62,7 +62,7 @@ class TestCalicoUpgrade(TestBase):
         ("prednat_policy", False),
     ])
     @attr('slow')
-    def test_conversion(self, testname, fail_expected):
+    def test_conversion(self, testname, no_prompt):
         """
         Test successful conversion of each resource, dry-run and start file validation.
         etcdv2 Ready and etcdv3 datastoreReady flag validation.
@@ -70,6 +70,8 @@ class TestCalicoUpgrade(TestBase):
         Correctly converted data validated with calicoctlv3 get compared to
         calicoctl convert manifest output.
         """
+        prompt_resp = None if no_prompt else "yes"
+
         testdata = data[testname]
         report1 = "convertednames"
 
@@ -88,7 +90,7 @@ class TestCalicoUpgrade(TestBase):
         logger.debug(
             "INFO: calico-upgrade dry-run %s output:\n%s" % (report1, dr_report1))
 
-        rcu = calicoupgrade("start")
+        rcu = calicoupgrade("start", prompt_resp)
         logger.debug("INFO: calico-upgrade start should return 0.")
         rcu.assert_no_error()
 
@@ -126,7 +128,7 @@ class TestCalicoUpgrade(TestBase):
         )
         original_resource.assert_data(cleaned_output)
 
-        rcu = calicoupgrade("complete")
+        rcu = calicoupgrade("complete", prompt_resp)
         logger.debug("INFO: calico-upgrade complete should return 0.")
         rcu.assert_no_error()
 
@@ -137,14 +139,14 @@ class TestCalicoUpgrade(TestBase):
         assert datastore_ready_rc is True
 
     @parameterized.expand([
-        ("hep_bad_label", True, CONVERT_ERROR_MSG, "convertednames", "validationerrors"),
-        ("hep_label_too_long", True, CONVERT_ERROR_MSG, "convertednames", "validationerrors"),
-        ("hep_name_too_long", True, CONVERT_ERROR_MSG, "convertednames", "validationerrors"),
-        ("wep_bad_workload_id", True, CONVERT_ERROR_MSG, "convertednames", "conversionerrors"),
-        ("wep_similar_name", True, CONVERT_ERROR_MSG, "convertednames", "conversionerrors"),
-        ("profile_long_labels", True, CONVERT_ERROR_MSG, "validationerrors"),
+        ("hep_bad_label", CONVERT_ERROR_MSG, "convertednames", "validationerrors"),
+        ("hep_label_too_long", CONVERT_ERROR_MSG, "convertednames", "validationerrors"),
+        ("hep_name_too_long", CONVERT_ERROR_MSG, "convertednames", "validationerrors"),
+        ("wep_bad_workload_id", CONVERT_ERROR_MSG, "convertednames", "conversionerrors"),
+        ("wep_similar_name", CONVERT_ERROR_MSG, "convertednames", "conversionerrors"),
+        ("profile_long_labels", CONVERT_ERROR_MSG, "validationerrors"),
     ])
-    def test_conversion_failure(self, testname, fail_expected, error_text, report1, report2=None):
+    def test_conversion_failure(self, testname, error_text, report1, report2=None):
         """
         Test failed conversion with dry-run and start file validation.
         etcdv2 Ready and etcdv3 datastoreReady flag validation.
@@ -194,25 +196,27 @@ class TestCalicoUpgrade(TestBase):
                 "INFO: calico-upgrade dry-run and start %s files are not equal" % report2
 
     @parameterized.expand([
-        ("ippool_mixed", False),
+        ("ippool_mixed", True),
         ("policy_long_name", False),
         ("profile_big", False),
     ])
     @attr('slow')
-    def test_start_abort_ignore_v3_data(self, testname, fail_expected):
+    def test_start_abort_ignore_v3_data(self, testname, no_prompt):
         """
         Test the abort command re-enables the v1 Ready flag.
 
         calico-upgrade abort - aborts the upgrade process
         by resuming Calico networking for the v2.x nodes.
         """
+        prompt_resp = None if no_prompt else "yes"
+
         testdata = data[testname]
 
         calicoctlv2("create", data=testdata)
         logger.debug("INFO: dump of etcdv2:")
         dump_etcdv2()
 
-        rcu = calicoupgrade("start")
+        rcu = calicoupgrade("start", prompt_resp)
         logger.debug("INFO: calico-upgrade start should return 0.")
         rcu.assert_no_error()
 
@@ -222,7 +226,7 @@ class TestCalicoUpgrade(TestBase):
         datastore_ready_rc = _get_ready_etcdv3()
         assert datastore_ready_rc is False
 
-        rcu = calicoupgrade("abort")
+        rcu = calicoupgrade("abort", prompt_resp)
         logger.debug("INFO: calico-upgrade abort should return 0.")
         rcu.assert_no_error()
 
@@ -232,7 +236,7 @@ class TestCalicoUpgrade(TestBase):
         datastore_ready_rc = _get_ready_etcdv3()
         assert datastore_ready_rc is False
 
-        rcu = calicoupgrade("start --ignore-v3-data")
+        rcu = calicoupgrade("start --ignore-v3-data", prompt_resp)
         logger.debug("INFO: calico-upgrade start should return 0.")
         rcu.assert_no_error()
 
@@ -242,7 +246,7 @@ class TestCalicoUpgrade(TestBase):
         datastore_ready_rc = _get_ready_etcdv3()
         assert datastore_ready_rc is False
 
-        rcu = calicoupgrade("complete")
+        rcu = calicoupgrade("complete", prompt_resp)
         logger.debug("INFO: calico-upgrade complete should return 0.")
         rcu.assert_no_error()
 
