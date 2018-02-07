@@ -5,7 +5,7 @@ all: dist/calico-upgrade dist/calico-upgrade-darwin-amd64 dist/calico-upgrade-wi
 
 ###############################################################################
 # Go Build versions
-GO_BUILD_VER:=v0.8
+GO_BUILD_VER:=v0.9
 CALICO_BUILD?=calico/go-build:$(GO_BUILD_VER)
 
 ###############################################################################
