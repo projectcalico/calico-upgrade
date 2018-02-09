@@ -46,6 +46,7 @@ SET_DEFAULT = "Cannot set"
 NOT_SUPPORTED = "is not supported on"
 KUBERNETES_NP = "kubernetes network policies must be managed through the kubernetes API"
 
+
 class CalicoctlOutput:
     """
     CalicoctlOutput contains the output from running a calicoctl command using
@@ -54,6 +55,7 @@ class CalicoctlOutput:
     This class contains the command, output and error code (if it failed)
     along with YAML/JSON decoded output if the output could be decoded.
     """
+
     def __init__(self, command, output, error=None):
         self.command = command
         self.output = output
@@ -62,13 +64,13 @@ class CalicoctlOutput:
         # Attempt to decode the output and store the output format.
         self.decoded, self.decoded_format = decode_json_yaml(self.output)
 
-    def assert_data(self, data, format="yaml", text=None):
+    def assert_data(self, data, fmt="yaml", text=None):
         """
         Assert the decoded output from the calicoctl command matches the
         supplied data and the expected decoder format.
         Args:
             data:   The data to compare
-            format: The expected output format of the data.
+            fmt: The expected output format of the data.
             text:   (optional) Expected text in the command output.
         """
         self.assert_no_error(text)
@@ -77,9 +79,10 @@ class CalicoctlOutput:
             data, _ = decode_json_yaml(data)
             assert data is not None, "String data did not decode"
 
-        if format is not None:
-            assert format == self.decoded_format, "Decoded format is different. " \
-                "expect %s; got %s" % (format, self.decoded_format)
+        if fmt is not None:
+            assert fmt == self.decoded_format, "Decoded format is different. " \
+                                                  "expect %s; got %s" % (
+                                                   fmt, self.decoded_format)
 
         # Copy and clean the decoded data to allow it to be comparable.
         cleaned = clean_calico_data(self.decoded)
@@ -88,23 +91,23 @@ class CalicoctlOutput:
             "Items are not the same.  Difference is:\n %s" % \
             pformat(DeepDiff(cleaned, data), indent=2)
 
-    def assert_empty_list(self, kind, format="yaml", text=None):
+    def assert_empty_list(self, kind, fmt="yaml", text=None):
         """
         Assert the calicoctl command output an empty list of the specified
         kind.
 
         Args:
             kind:   The resource kind.
-            format: The expected output format of the data.
+            fmt: The expected output format of the data.
             text:   (optional) Expected text in the command output.
 
         Returns:
 
         """
         data = make_list(kind, [])
-        self.assert_data(data, format=format, text=text)
+        self.assert_data(data, fmt=fmt, text=text)
 
-    def assert_list(self, kind, items, format="yaml", text=None):
+    def assert_list(self, kind, items, fmt="yaml", text=None):
         """
         Assert the calicoctl command output an empty list of the specified
         kind.
@@ -112,14 +115,14 @@ class CalicoctlOutput:
         Args:
             kind:   The resource kind.
             items:  A list of the items in the list.
-            format: The expected output format of the data.
+            fmt: The expected output format of the data.
             text:   (optional) Expected text in the command output.
 
         Returns:
 
         """
         data = make_list(kind, items)
-        self.assert_data(data, format=format, text=text)
+        self.assert_data(data, fmt=fmt, text=text)
 
     def assert_error(self, text=None):
         """
@@ -128,7 +131,7 @@ class CalicoctlOutput:
             text:   (optional) Expected text in the command output.
         """
         assert self.error, "Expected error running command; \n" \
-            "command=" + self.command + "\noutput=" + self.output
+                           "command=" + self.command + "\noutput=" + self.output
         self.assert_output_contains(text)
 
     def assert_no_error(self, text=None):
@@ -138,7 +141,7 @@ class CalicoctlOutput:
             text:   (optional) Expected text in the command output.
         """
         assert not self.error, "Expected no error running command; \n" \
-            "command=" + self.command + "\noutput=" + self.output
+                               "command=" + self.command + "\noutput=" + self.output
 
         # If text is supplied, assert it appears in the output
         if text:
@@ -148,18 +151,16 @@ class CalicoctlOutput:
         """
         Assert the calicoctl command output contains the supplied text.
         Args:
-            data:   The data to compare
-            format: The expected output format of the data.
             text:   (optional) Expected text in the command output.
         """
         if not text:
             return
         assert text in self.output, "Expected text in output; \n" + \
-            "command=" + self.command + "\noutput=\n" + self.output + \
-            "\nexpected=\n" + text
+                                    "command=" + self.command + "\noutput=\n" + self.output + \
+                                    "\nexpected=\n" + text
 
 
-def calicoctl(command, data=None, load_as_stdin=False, format="yaml"):
+def calicoctl(command, data=None):
     """
     Convenience function for abstracting away calling the calicoctl
     command.
@@ -167,29 +168,14 @@ def calicoctl(command, data=None, load_as_stdin=False, format="yaml"):
     :param command:  The calicoctl command line parms as a single string.
     :param data:  Input data either as a string or a JSON serializable Python
     object.
-    :param load_as_stdin:  Load the input data through stdin rather than by
-    loading from file.
-    :param format:  Specify the format for loading the data.
     :return: The output from the command with leading and trailing
     whitespace removed.
     """
     # If input data is specified, save it to file in the required format.
-    if isinstance(data, str):
-        data, _ = decode_json_yaml(data)
-        assert data is not None, "String data did not decode"
-    if data is not None:
-        if format == "yaml":
-            writeyaml("/tmp/input-data", data)
-        else:
-            writejson("/tmp/input-data", data)
-
-    stdin = ''
     option_file = ''
 
-    if data and load_as_stdin:
-        stdin = 'cat /tmp/input-data | '
-        option_file = ' -f -'
-    elif data and not load_as_stdin:
+    if data:
+        writejson("/tmp/input-data", data)
         option_file = ' -f /tmp/input-data'
 
     calicoctl_bin = os.environ.get("CALICOCTL", "/code/dist/calicoctl")
@@ -198,17 +184,18 @@ def calicoctl(command, data=None, load_as_stdin=False, format="yaml"):
         etcd_auth = "%s:2379" % ETCD_HOSTNAME_SSL
     else:
         etcd_auth = "%s:2379" % get_ip()
+
     # Export the environment, in case the command has multiple parts, e.g.
     # use of | or ;
     #
     # Pass in all etcd params, the values will be empty if not set anyway
     calicoctl_env_cmd = "export ETCD_ENDPOINTS=%s; " \
-                "export ETCD_CA_CERT_FILE=%s; " \
-                "export ETCD_CERT_FILE=%s; " \
-                "export ETCD_KEY_FILE=%s; " \
-                "export DATASTORE_TYPE=%s; %s %s" % \
-                (ETCD_SCHEME+"://"+etcd_auth, ETCD_CA, ETCD_CERT, ETCD_KEY,
-                 "etcdv3", stdin, calicoctl_bin)
+                        "export ETCD_CA_CERT_FILE=%s; " \
+                        "export ETCD_CERT_FILE=%s; " \
+                        "export ETCD_KEY_FILE=%s; " \
+                        "export DATASTORE_TYPE=%s; %s" % \
+                        (ETCD_SCHEME + "://" + etcd_auth, ETCD_CA, ETCD_CERT, ETCD_KEY,
+                         "etcdv3", calicoctl_bin)
     full_cmd = calicoctl_env_cmd + " " + command + option_file
 
     try:
@@ -218,7 +205,110 @@ def calicoctl(command, data=None, load_as_stdin=False, format="yaml"):
         return CalicoctlOutput(full_cmd, e.output, error=e.returncode)
 
 
-def clean_calico_data(data):
+def calicoctlv2(command, data=None):
+    """
+    Convenience function for abstracting away calling the calicoctl
+    command.
+
+    :param command:  The calicoctl command line parms as a single string.
+    :param data:  Input data either as a string or a JSON serializable Python
+    object.
+    :return: The output from the command with leading and trailing
+    whitespace removed.
+    """
+    # If input data is specified, save it to file in the required format.
+    option_file = ''
+
+    if data:
+        writejson("/tmp/input-data", data)
+        option_file = ' -f /tmp/input-data'
+
+    calicoctlv2_bin = os.environ.get("CALICOCTLV2", "/code/dist/calicoctlv2")
+
+    if ETCD_SCHEME == "https":
+        etcd_auth = "%s:2379" % ETCD_HOSTNAME_SSL
+    else:
+        etcd_auth = "%s:2379" % get_ip()
+
+    # Export the environment, in case the command has multiple parts, e.g.
+    # use of | or ;
+    #
+    # Pass in all etcd params, the values will be empty if not set anyway
+    calicoctlv2_env_cmd = "export ETCD_ENDPOINTS=%s; " \
+                          "export ETCD_CA_CERT_FILE=%s; " \
+                          "export ETCD_CERT_FILE=%s; " \
+                          "export ETCD_KEY_FILE=%s; " \
+                          "export DATASTORE_TYPE=%s; %s" % \
+                          (ETCD_SCHEME + "://" + etcd_auth, ETCD_CA, ETCD_CERT, ETCD_KEY,
+                           "etcdv2", calicoctlv2_bin)
+
+    if data:
+        full_cmd = calicoctlv2_env_cmd + " " + command + option_file
+    else:
+        full_cmd = calicoctlv2_env_cmd + " " + command
+
+    try:
+        output = log_and_run(full_cmd)
+        return CalicoctlOutput(full_cmd, output)
+    except CalledProcessError as e:
+        return CalicoctlOutput(full_cmd, e.output, error=e.returncode)
+
+
+def calicoupgrade(command):
+    """
+    Convenience function for abstracting away calling the calicoctl-upgrade
+    command.
+
+    :param command:  The calicoctl-upgrade command line parms as a single string.
+
+    :return: The output from the command with leading and trailing
+    whitespace removed.
+    """
+
+    calicoupgrade_bin = os.environ.get("CALICOUPGRADE", "/code/dist/calico-upgrade")
+
+    if ETCD_SCHEME == "https":
+        etcd_auth = "%s:2379" % ETCD_HOSTNAME_SSL
+    else:
+        etcd_auth = "%s:2379" % get_ip()
+
+    # Export the environment, in case the command has multiple parts, e.g.
+    # use of | or ;
+    #
+    # Pass in all etcd params, the values will be empty if not set anyway
+    calicoupgrade_env_cmd_echo = "export ETCD_ENDPOINTS=%s; " \
+                                 "export APIV1_ETCD_ENDPOINTS=%s; " \
+                                 "export ETCD_CA_CERT_FILE=%s; " \
+                                 "export ETCD_CERT_FILE=%s; " \
+                                 "export ETCD_KEY_FILE=%s; " \
+                                 "export DATASTORE_TYPE=%s; %s" % \
+                                 (ETCD_SCHEME + "://" + etcd_auth, ETCD_SCHEME + "://" + etcd_auth,
+                                  ETCD_CA, ETCD_CERT, ETCD_KEY,
+                                  "etcdv3", "echo 'yes' | " + calicoupgrade_bin)
+
+    calicoupgrade_env_cmd = "export ETCD_ENDPOINTS=%s; " \
+                            "export APIV1_ETCD_ENDPOINTS=%s; " \
+                            "export ETCD_CA_CERT_FILE=%s; " \
+                            "export ETCD_CERT_FILE=%s; " \
+                            "export ETCD_KEY_FILE=%s; " \
+                            "export DATASTORE_TYPE=%s; %s" % \
+                            (ETCD_SCHEME + "://" + etcd_auth, ETCD_SCHEME + "://" + etcd_auth,
+                             ETCD_CA, ETCD_CERT, ETCD_KEY,
+                             "etcdv3", calicoupgrade_bin)
+
+    if command == "dry-run":
+        full_cmd = calicoupgrade_env_cmd + " " + command
+    else:
+        full_cmd = calicoupgrade_env_cmd_echo + " " + command
+
+    try:
+        output = log_and_run(full_cmd)
+        return CalicoctlOutput(full_cmd, output)
+    except CalledProcessError as e:
+        return CalicoctlOutput(full_cmd, e.output, error=e.returncode)
+
+
+def clean_calico_data(data, extra_keys_to_remove=None):
     """
     Clean the data returned from a calicoctl get command to remove empty
     structs, null values and non-configurable fields.  This makes comparison
@@ -226,6 +316,7 @@ def clean_calico_data(data):
 
     Args:
         data: The data to clean.
+        extra_keys_to_remove: more keys to remove if needed.
 
     Returns: The cleaned data.
 
@@ -234,24 +325,28 @@ def clean_calico_data(data):
 
     # Recursively delete empty structs / nil values and non-configurable
     # fields.
-    def clean_elem(elem):
+    def clean_elem(elem, extra_keys):
         if isinstance(elem, list):
             # Loop through each element in the list
             for i in elem:
-                clean_elem(i)
+                clean_elem(i, extra_keys)
         if isinstance(elem, dict):
             # Remove non-settable fields, and recursively clean each value of
             # the dictionary, removing nil values or values that are empty
             # dicts after cleaning.
             del_keys = ['creationTimestamp', 'resourceVersion', 'uid']
+            if extra_keys is not None:
+                for extra_key in extra_keys:
+                    del_keys.append(extra_key)
             for k, v in elem.iteritems():
-                clean_elem(v)
+                clean_elem(v, extra_keys)
                 if v is None or v == {}:
                     del_keys.append(k)
             for k in del_keys:
                 if k in elem:
-                    del(elem[k])
-    clean_elem(new)
+                    del (elem[k])
+
+    clean_elem(new, extra_keys_to_remove)
     return new
 
 
@@ -272,6 +367,7 @@ def decode_json_yaml(value):
         pass
     return None, None
 
+
 def find_and_format_creation_timestamp(decoded):
     if 'items' in decoded:
         for i in xrange(len(decoded['items'])):
@@ -280,12 +376,16 @@ def find_and_format_creation_timestamp(decoded):
         decoded = format_creation_timestamp(decoded)
     return decoded
 
+
 def format_creation_timestamp(decoded):
-    if isinstance(decoded, dict) and 'metadata' in decoded and 'creationTimestamp' in decoded['metadata']:
+    if (isinstance(decoded, dict) and
+            ('metadata' in decoded) and
+            ('creationTimestamp' in decoded['metadata'])):
         if isinstance(decoded['metadata']['creationTimestamp'], datetime):
-            decoded['metadata']['creationTimestamp'] = decoded.get('metadata', {}). \
-                    get('creationTimestamp', datetime.utcnow()).isoformat() + 'Z'
+            decoded['metadata']['creationTimestamp'] = decoded.get('metadata', {}).get(
+                'creationTimestamp', datetime.utcnow()).isoformat() + 'Z'
     return decoded
+
 
 def writeyaml(filename, data):
     """
@@ -338,14 +438,14 @@ def get_ip(v6=False):
 
 
 # Some of the commands we execute like to mess with the TTY configuration,
-# which can break the output formatting. As a wrokaround, save off the
+# which can break the output formatting. As a workaround, save off the
 # terminal settings and restore them after each command.
 _term_settings = termios.tcgetattr(sys.stdin.fileno())
 
 
 def log_and_run(command, raise_exception_on_failure=True):
-    def log_output(results):
-        if results is None:
+    def log_output(res):
+        if res is None:
             logger.info("  # <no output>")
 
         lines = results.split("\n")
@@ -379,6 +479,7 @@ def curl_etcd(path, options=None, recursive=True, ip=None):
     :param path:  The key path to query
     :param options:  Additional options to include in the curl
     :param recursive:  Whether we want recursive query or not
+    :param ip: IP address of etcd
     :return:  The JSON decoded response.
     """
     if options is None:
@@ -399,7 +500,8 @@ def curl_etcd(path, options=None, recursive=True, ip=None):
 
     return json.loads(rc.strip())
 
-def wipe_etcd(ip):
+
+def wipe_etcdv2(ip):
     # Delete /calico if it exists. This ensures each test has an empty data
     # store at start of day.
     curl_etcd("calico", options=["-XDELETE"], ip=ip)
@@ -407,26 +509,179 @@ def wipe_etcd(ip):
     # Disable Usage Reporting to usage.projectcalico.org
     # We want to avoid polluting analytics data with unit test noise
     curl_etcd("calico/v1/config/UsageReportingEnabled",
-                   options=["-XPUT -d value=False"], ip=ip)
+              options=["-XPUT -d value=False"], ip=ip)
+
+
+def wipe_etcdv3(ip):
+    # Delete /calico if it exists. This ensures each test has an empty data
+    # store at start of day.
+    curl_etcd("calico", options=["-XDELETE"], ip=ip)
+
+    # Disable Usage Reporting to usage.projectcalico.org
+    # We want to avoid polluting analytics data with unit test noise
+    curl_etcd("calico/v1/config/UsageReportingEnabled",
+              options=["-XPUT -d value=False"], ip=ip)
+
+    etcd_container_name = "calico-etcd"
+    tls_vars = ""
+    if ETCD_SCHEME == "https":
+        # Etcd is running with SSL/TLS, require key/certificates
+        etcd_container_name = "calico-etcd-ssl"
+        tls_vars = ("ETCDCTL_CACERT=/etc/calico/certs/ca.pem " +
+                    "ETCDCTL_CERT=/etc/calico/certs/client.pem " +
+                    "ETCDCTL_KEY=/etc/calico/certs/client-key.pem ")
+
+    check_output("docker exec " + etcd_container_name + " sh -c '" + tls_vars +
+                 "ETCDCTL_API=3 etcdctl del --prefix /calico" +
+                 "'", shell=True)
+
+
+def etcd_get_version(ip):
+    # Delete /calico if it exists. This ensures each test has an empty data
+    # store at start of day.
+    curl_etcd("calico", options=["-XDELETE"], ip=ip)
+
+    # Disable Usage Reporting to usage.projectcalico.org
+    # We want to avoid polluting analytics data with unit test noise
+    curl_etcd("/calico/v1/config/CalicoVersion",
+              options=["-XPUT -d value=False"], ip=ip)
+
+
+def set_version_etcdv2(calico_v1_ver):
+    etcd_container_name = "calico-etcd"
+    tls_vars = ""
+    if ETCD_SCHEME == "https":
+        # Etcd is running with SSL/TLS, require key/certificates
+        etcd_container_name = "calico-etcd-ssl"
+        tls_vars = ("ETCDCTL_CACERT=/etc/calico/certs/ca.pem " +
+                    "ETCDCTL_CERT=/etc/calico/certs/client.pem " +
+                    "ETCDCTL_KEY=/etc/calico/certs/client-key.pem ")
+
+    log_and_run("docker exec " + etcd_container_name + " sh -c '" + tls_vars +
+                "ETCDCTL_API=2 etcdctl set /calico/v1/config/CalicoVersion " + calico_v1_ver +
+                "'")
+
+    check_version_cmd = "docker exec " + etcd_container_name + " sh -c '" + tls_vars + \
+                        "ETCDCTL_API=2 etcdctl get /calico/v1/config/CalicoVersion " + "'"
+
+    output = log_and_run(check_version_cmd)
+
+    if calico_v1_ver == output:
+        logger.debug(
+            "/calico/v1/config/CalicoVersion set=%s and get=%s\n" % (calico_v1_ver, output))
+        return
+    else:
+        assert calico_v1_ver == output
+
+
+def set_ready_etcdv2(flag_value):
+    etcd_container_name = "calico-etcd"
+    tls_vars = ""
+    if ETCD_SCHEME == "https":
+        # Etcd is running with SSL/TLS, require key/certificates
+        etcd_container_name = "calico-etcd-ssl"
+        tls_vars = ("ETCDCTL_CACERT=/etc/calico/certs/ca.pem " +
+                    "ETCDCTL_CERT=/etc/calico/certs/client.pem " +
+                    "ETCDCTL_KEY=/etc/calico/certs/client-key.pem ")
+
+    log_and_run("docker exec " + etcd_container_name + " sh -c '" + tls_vars +
+                "ETCDCTL_API=2 etcdctl set /calico/v1/Ready " + flag_value +
+                "'")
+
+    check_version_cmd = "docker exec " + etcd_container_name + " sh -c '" + tls_vars + \
+                        "ETCDCTL_API=2 etcdctl get /calico/v1/Ready" + "'"
+
+    output = log_and_run(check_version_cmd)
+    if flag_value == output:
+        logger.debug("/calico/v1/Ready set=%s and get=%s\n" % (flag_value, output))
+        return
+    else:
+        assert flag_value == output
+
+
+def get_value_etcdv2(flag_key):
+    etcd_container_name = "calico-etcd"
+    tls_vars = ""
+    if ETCD_SCHEME == "https":
+        # Etcd is running with SSL/TLS, require key/certificates
+        etcd_container_name = "calico-etcd-ssl"
+        tls_vars = ("ETCDCTL_CACERT=/etc/calico/certs/ca.pem " +
+                    "ETCDCTL_CERT=/etc/calico/certs/client.pem " +
+                    "ETCDCTL_KEY=/etc/calico/certs/client-key.pem ")
+
+    get_value_cmd = "docker exec " + etcd_container_name + " sh -c '" + tls_vars + \
+                    "ETCDCTL_API=2 etcdctl get " + flag_key + "'"
+
+    output = log_and_run(get_value_cmd)
+    return output
+
+
+def dump_etcdv2():
+    etcd_container_name = "calico-etcd"
+    tls_vars = ""
+    if ETCD_SCHEME == "https":
+        # Etcd is running with SSL/TLS, require key/certificates
+        etcd_container_name = "calico-etcd-ssl"
+        tls_vars = ("ETCDCTL_CACERT=/etc/calico/certs/ca.pem " +
+                    "ETCDCTL_CERT=/etc/calico/certs/client.pem " +
+                    "ETCDCTL_KEY=/etc/calico/certs/client-key.pem ")
+
+    log_and_run("docker exec " + etcd_container_name + " sh -c '" + tls_vars +
+                "ETCDCTL_API=2 etcdctl ls -r" +
+                "'")
+
+
+def get_value_etcdv3(flag_key):
+    etcd_container_name = "calico-etcd"
+    tls_vars = ""
+    if ETCD_SCHEME == "https":
+        # Etcd is running with SSL/TLS, require key/certificates
+        etcd_container_name = "calico-etcd-ssl"
+        tls_vars = ("ETCDCTL_CACERT=/etc/calico/certs/ca.pem " +
+                    "ETCDCTL_CERT=/etc/calico/certs/client.pem " +
+                    "ETCDCTL_KEY=/etc/calico/certs/client-key.pem ")
+
+    output = log_and_run("docker exec " + etcd_container_name + " sh -c '" + tls_vars +
+                         "ETCDCTL_API=3 etcdctl get --prefix " + flag_key +
+                         "'")
+    return output
+
+
+def dump_etcdv3():
+    etcd_container_name = "calico-etcd"
+    tls_vars = ""
+    if ETCD_SCHEME == "https":
+        # Etcd is running with SSL/TLS, require key/certificates
+        etcd_container_name = "calico-etcd-ssl"
+        tls_vars = ("ETCDCTL_CACERT=/etc/calico/certs/ca.pem " +
+                    "ETCDCTL_CERT=/etc/calico/certs/client.pem " +
+                    "ETCDCTL_KEY=/etc/calico/certs/client-key.pem ")
+
+    log_and_run("docker exec " + etcd_container_name + " sh -c '" + tls_vars +
+                "ETCDCTL_API=3 etcdctl get --prefix /calico" +
+                "'")
 
 
 def make_list(kind, items):
     """
     Convert the list of resources into a single List resource type.
     Args:
+        kind: Type of resource
         items: A list of the resources in the List object.
 
     Returns:
-        None
+        List of resources
     """
     assert isinstance(items, list)
     if "List" not in kind:
         kind = kind + "List"
-    return {
+    data = {
         'kind': kind,
         'apiVersion': API_VERSION,
         'items': items,
     }
+    return data
+
 
 def name(data):
     """
