@@ -188,8 +188,11 @@ st: dist/calico-upgrade dist/calicoctl dist/calicoctlv2 run-etcd
 	# All of code under test is mounted into the container.
 	#   - This also provides access to calico-upgrade and the docker client
 	docker run --net=host --privileged \
+	           --uts=host \
+	           --pid=host \
 	           -e MY_IP=$(LOCAL_IP_ENV) \
 	           --rm -ti \
+                   -v /var/run/docker.sock:/var/run/docker.sock \
 	           -v $(SOURCE_DIR):/code \
 	           calico/test \
 	           sh -c 'nosetests $(ST_TO_RUN) -sv --nologcapture  --with-xunit --xunit-file="/code/nosetests.xml" --with-timer $(ST_OPTIONS)'
@@ -201,8 +204,11 @@ st: dist/calico-upgrade dist/calicoctl dist/calicoctlv2 run-etcd
 .PHONY: st
 testenv: dist/calico-upgrade dist/calicoctl dist/calicoctlv2 run-etcd
 	-docker run --net=host --privileged \
+	           --uts=host \
+	           --pid=host \
 	           --rm -ti \
 	           -v $(SOURCE_DIR):/code \
+                   -v /var/run/docker.sock:/var/run/docker.sock \
 	           --name=testenv \
 	           calico/test \
 	           sh

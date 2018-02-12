@@ -14,7 +14,8 @@
 import logging
 from unittest import TestCase
 
-from tests.st.utils.utils import (get_ip, wipe_etcd, calicoctl)
+from tests.st.utils.utils import (get_ip, wipe_etcdv2, wipe_etcdv3,
+                                  set_version_etcdv2, set_ready_etcdv2, get_value_etcdv2)
 
 HOST_IPV4 = get_ip()
 
@@ -32,10 +33,23 @@ class TestBase(TestCase):
         Clean up before every test.
         """
         self.ip = HOST_IPV4
-        self.wipe_etcd()
+        self.wipe_etcdv2()
+        self.wipe_etcdv3()
+        minimum_starting_state()
 
         # Log a newline to ensure that the first log appears on its own line.
         logger.info("")
 
-    def wipe_etcd(self):
-        wipe_etcd(self.ip)
+    def wipe_etcdv2(self):
+        wipe_etcdv2(self.ip)
+
+    def wipe_etcdv3(self):
+        wipe_etcdv3(self.ip)
+
+
+def minimum_starting_state():
+    logger.debug("INFO: Setting minimum starting state config for calicoctl v1")
+    set_version_etcdv2("v2.6.6-2-g0f0e2184")
+    set_ready_etcdv2("true")
+    ready_output = get_value_etcdv2("/calico/v1/Ready")
+    assert ready_output == "true"
