@@ -261,6 +261,9 @@ semaphore: clean
 	# Make sure that calico-upgrade builds cross-platform.
 	$(MAKE) dist/calico-upgrade-darwin-amd64 dist/calico-upgrade-windows-amd64.exe
 
+	# Run the tests.
+	$(MAKE) test-containerized
+
 release: clean
 ifndef VERSION
 	$(error VERSION is undefined - run using make release VERSION=vX.Y.Z)
