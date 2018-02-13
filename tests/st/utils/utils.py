@@ -444,8 +444,8 @@ _term_settings = termios.tcgetattr(sys.stdin.fileno())
 
 
 def log_and_run(command, raise_exception_on_failure=True):
-    def log_output(res):
-        if res is None:
+    def log_output(results):
+        if results is None:
             logger.info("  # <no output>")
 
         lines = results.split("\n")
