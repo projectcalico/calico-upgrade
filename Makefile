@@ -175,7 +175,7 @@ static-checks: vendor
 SOURCE_DIR?=$(dir $(lastword $(MAKEFILE_LIST)))
 SOURCE_DIR:=$(abspath $(SOURCE_DIR))
 LOCAL_IP_ENV?=$(shell ip route get 8.8.8.8 | head -1 | awk '{print $$7}')
-ST_TO_RUN?=tests/st/calico_upgrade/test_crud.py
+ST_TO_RUN?=tests/st/calico_upgrade/test_calico_upgrade.py
 # Can exclude the slower tests with "-a '!slow'"
 ST_OPTIONS?=
 
@@ -260,6 +260,10 @@ semaphore: clean
 
 	# Make sure that calico-upgrade builds cross-platform.
 	$(MAKE) dist/calico-upgrade-darwin-amd64 dist/calico-upgrade-windows-amd64.exe
+
+	# Run the tests.
+	# Only running make st since test-containerized has no ut to execute.
+	$(MAKE) st
 
 release: clean
 ifndef VERSION
