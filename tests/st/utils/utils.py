@@ -254,7 +254,7 @@ def calicoctlv2(command, data=None):
         return CalicoctlOutput(full_cmd, e.output, error=e.returncode)
 
 
-def calicoupgrade(command):
+def calicoupgrade(command, prompt_resp='yes'):
     """
     Convenience function for abstracting away calling the calicoctl-upgrade
     command.
@@ -272,34 +272,32 @@ def calicoupgrade(command):
     else:
         etcd_auth = "%s:2379" % get_ip()
 
+    # Calculate the full calico-upgrade command.
+    if command != "dry-run":
+        if not prompt_resp:
+            # This is not a dry-run command and we are not passing in a prompt response.  In
+            # this case we need to include the "--no-prompt" flag.
+            command = calicoupgrade_bin + " " + command + " --no-prompt"
+        else:
+            # This is not a dry-run command, and we are including a prompt response.  Feed in
+            # in the response using echo.
+            command = "echo '%s' | %s %s" % (prompt_resp, calicoupgrade_bin, command)
+    else:
+        command = calicoupgrade_bin + " " + command
+
     # Export the environment, in case the command has multiple parts, e.g.
     # use of | or ;
     #
     # Pass in all etcd params, the values will be empty if not set anyway
-    calicoupgrade_env_cmd_echo = "export ETCD_ENDPOINTS=%s; " \
-                                 "export APIV1_ETCD_ENDPOINTS=%s; " \
-                                 "export ETCD_CA_CERT_FILE=%s; " \
-                                 "export ETCD_CERT_FILE=%s; " \
-                                 "export ETCD_KEY_FILE=%s; " \
-                                 "export DATASTORE_TYPE=%s; %s" % \
-                                 (ETCD_SCHEME + "://" + etcd_auth, ETCD_SCHEME + "://" + etcd_auth,
-                                  ETCD_CA, ETCD_CERT, ETCD_KEY,
-                                  "etcdv3", "echo 'yes' | " + calicoupgrade_bin)
-
-    calicoupgrade_env_cmd = "export ETCD_ENDPOINTS=%s; " \
-                            "export APIV1_ETCD_ENDPOINTS=%s; " \
-                            "export ETCD_CA_CERT_FILE=%s; " \
-                            "export ETCD_CERT_FILE=%s; " \
-                            "export ETCD_KEY_FILE=%s; " \
-                            "export DATASTORE_TYPE=%s; %s" % \
-                            (ETCD_SCHEME + "://" + etcd_auth, ETCD_SCHEME + "://" + etcd_auth,
-                             ETCD_CA, ETCD_CERT, ETCD_KEY,
-                             "etcdv3", calicoupgrade_bin)
-
-    if command == "dry-run":
-        full_cmd = calicoupgrade_env_cmd + " " + command
-    else:
-        full_cmd = calicoupgrade_env_cmd_echo + " " + command
+    full_cmd = "export ETCD_ENDPOINTS=%s; " \
+        "export APIV1_ETCD_ENDPOINTS=%s; " \
+        "export ETCD_CA_CERT_FILE=%s; " \
+        "export ETCD_CERT_FILE=%s; " \
+        "export ETCD_KEY_FILE=%s; " \
+        "export DATASTORE_TYPE=%s; %s" % \
+        (ETCD_SCHEME + "://" + etcd_auth, ETCD_SCHEME + "://" + etcd_auth,
+         ETCD_CA, ETCD_CERT, ETCD_KEY,
+         "etcdv3", command)
 
     try:
         output = log_and_run(full_cmd)

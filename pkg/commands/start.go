@@ -33,6 +33,7 @@ func Start(args []string) {
       [--apiconfigv1=<V1_APICONFIG>]
       [--output-dir=<OUTPUTDIR>]
       [--ignore-v3-data]
+      [--no-prompts]
 
 Example:
   calico-upgrade start --apiconfigv3=/path/to/v3/config --apiconfigv1=/path/to/v1/config
@@ -58,6 +59,8 @@ Options:
                                option may be used if that is not possible, or
                                if you know all of the data present will be
                                updated by the upgrade.
+  --no-prompts                 Do not prompt the user. We do not recommend use
+                               of this option unless necessary.
 
 Description:
   Start the upgrade process to migrate from the Calico v1 data format to the
@@ -91,6 +94,7 @@ Description:
 	cfv1 := parsedArgs["--apiconfigv1"].(string)
 	output := parsedArgs["--output-dir"].(string)
 	ignoreV3Data := parsedArgs["--ignore-v3-data"].(bool)
+	noPrompts := parsedArgs["--no-prompts"].(bool)
 	ch := &cliHelper{}
 
 	// Obtain the v1 and v3 clients.
@@ -132,7 +136,9 @@ Description:
 			"calicoctl during this time.")
 	}
 	ch.NewLine()
-	ch.ConfirmProceed()
+	if !noPrompts {
+		ch.ConfirmProceed()
+	}
 
 	// Perform the data migration.
 	data, err = m.Migrate()

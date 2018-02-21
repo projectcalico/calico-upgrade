@@ -31,6 +31,7 @@ func Abort(args []string) {
   calico-upgrade abort
       [--apiconfigv3=<V3_APICONFIG>]
       [--apiconfigv1=<V1_APICONFIG>]
+      [--no-prompts]
 
 Example:
   calico-upgrade abort --apiconfigv3=/path/to/v3/config --apiconfigv1=/path/to/v1/config
@@ -45,6 +46,8 @@ Options:
                                configuration in YAML or JSON format for
                                the Calico v1 API.
                                [default: ` + constants.DefaultConfigPathV1 + `]
+  --no-prompts                 Do not prompt the user. We do not recommend use
+                               of this option unless necessary.
 
 Description:
   Abort an upgrade that was started using 'calico-upgrade start'. In the event
@@ -61,6 +64,7 @@ Description:
 	}
 	cfv3 := parsedArgs["--apiconfigv3"].(string)
 	cfv1 := parsedArgs["--apiconfigv1"].(string)
+	noPrompts := parsedArgs["--no-prompts"].(bool)
 	ch := &cliHelper{}
 
 	// Obtain the v1 and v3 clients.
@@ -89,7 +93,9 @@ Description:
 		"At this point, all calico/node instances and orchestrator plugins " +
 		"(e.g. CNI) should be running Calico v2.x.")
 	ch.NewLine()
-	ch.ConfirmProceed()
+	if !noPrompts {
+		ch.ConfirmProceed()
+	}
 
 	// Perform the data migration.
 	err = m.Abort()
