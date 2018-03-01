@@ -1,5 +1,5 @@
-hash: b7c56a79fd321aa188cf691a433bef43b3b4fcd85b74a83726e691eb051f1352
-updated: 2018-02-06T22:03:52.382299817Z
+hash: 3923db181b9ab19b6772d5b5f8ae4bd27433213505ed28a3446d60c3a8f32068
+updated: 2018-03-01T22:03:00.861052625Z
 imports:
 - name: cloud.google.com/go
   version: 3b1ae45394a234c385be014e9a488f2bb6eef821
@@ -137,7 +137,7 @@ imports:
 - name: github.com/projectcalico/go-yaml-wrapper
   version: 598e54215bee41a19677faa4f0c32acd2a87eb56
 - name: github.com/projectcalico/libcalico-go
-  version: 26b83dc3ccceeff9312eaf339386e6599c89c63b
+  version: 2fa2887d917b41342f9beaae745dff2355e4f47c
   subpackages:
   - lib/apiconfig
   - lib/apis/v1
@@ -190,7 +190,7 @@ imports:
   subpackages:
   - go
 - name: github.com/prometheus/common
-  version: 89604d197083d4781071d3c65855d24ecfb0a563
+  version: 6fb6fce6f8b75884b92e1889c150403fc0872c5e
   subpackages:
   - expfmt
   - internal/bitbucket.org/ww/goautoneg
