@@ -1,5 +1,5 @@
-hash: fb065d47814bdf37286428e927629fa58d094fcf84c46edf017ec64597ce44a5
-updated: 2018-03-19T14:53:59.834916486Z
+hash: 69506ea392640321071b45508ceebc0a579b786d4204bcf51c349a5c71e9f37f
+updated: 2018-03-20T15:57:58.666687191Z
 imports:
 - name: cloud.google.com/go
   version: 3b1ae45394a234c385be014e9a488f2bb6eef821
@@ -43,7 +43,7 @@ imports:
 - name: github.com/dgrijalva/jwt-go
   version: d2709f9f1f31ebcda9651b03077758c1f3a0018c
 - name: github.com/docopt/docopt-go
-  version: 784ddc588536785e7299f7272f39101f7faccc3f
+  version: ee0de3bc6815ee19d4a46c7eb90f829db0e014b1
 - name: github.com/emicklei/go-restful
   version: ff4f55a206334ef123e4f79bbf348980da81ca46
   subpackages:
@@ -137,7 +137,7 @@ imports:
 - name: github.com/projectcalico/go-yaml-wrapper
   version: 598e54215bee41a19677faa4f0c32acd2a87eb56
 - name: github.com/projectcalico/libcalico-go
-  version: 16a16d0960511310db4772874de7650ab2967827
+  version: d8b7e0355c6fc8a27a169425980b69ead7f2e597
   subpackages:
   - lib/apiconfig
   - lib/apis/v1
@@ -150,9 +150,6 @@ imports:
   - lib/backend/k8s/conversion
   - lib/backend/k8s/resources
   - lib/backend/model
-  - lib/backend/syncersv1/felixsyncer
-  - lib/backend/syncersv1/updateprocessors
-  - lib/backend/watchersyncer
   - lib/clientv3
   - lib/errors
   - lib/hash
