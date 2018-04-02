@@ -1,5 +1,5 @@
-hash: 69506ea392640321071b45508ceebc0a579b786d4204bcf51c349a5c71e9f37f
-updated: 2018-03-20T15:57:58.666687191Z
+hash: 5af6e04396e6ca363aff8451d92b10c45ea9440fe7c520192ee6a1da3c945571
+updated: 2018-04-02T18:12:59.593637189Z
 imports:
 - name: cloud.google.com/go
   version: 3b1ae45394a234c385be014e9a488f2bb6eef821
@@ -14,7 +14,7 @@ imports:
   - autorest/azure
   - autorest/date
 - name: github.com/beorn7/perks
-  version: 4c0e84591b9aa9e6dcfdf3e020114cd81f89d5f9
+  version: 3a771d992973f24aa725d07868b467d1ddfceafb
   subpackages:
   - quantile
 - name: github.com/coreos/etcd
@@ -43,7 +43,7 @@ imports:
 - name: github.com/dgrijalva/jwt-go
   version: d2709f9f1f31ebcda9651b03077758c1f3a0018c
 - name: github.com/docopt/docopt-go
-  version: ee0de3bc6815ee19d4a46c7eb90f829db0e014b1
+  version: 784ddc588536785e7299f7272f39101f7faccc3f
 - name: github.com/emicklei/go-restful
   version: ff4f55a206334ef123e4f79bbf348980da81ca46
   subpackages:
@@ -137,7 +137,7 @@ imports:
 - name: github.com/projectcalico/go-yaml-wrapper
   version: 598e54215bee41a19677faa4f0c32acd2a87eb56
 - name: github.com/projectcalico/libcalico-go
-  version: d8b7e0355c6fc8a27a169425980b69ead7f2e597
+  version: 88291609bbefd0fe22982a7a78ec51d63583a651
   subpackages:
   - lib/apiconfig
   - lib/apis/v1
@@ -187,7 +187,7 @@ imports:
   subpackages:
   - go
 - name: github.com/prometheus/common
-  version: e4aa40a9169a88835b849a6efb71e05dc04b88f0
+  version: 38c53a9f4bfcd932d1b00bfc65e256a7fba6b37a
   subpackages:
   - expfmt
   - internal/bitbucket.org/ww/goautoneg
@@ -252,7 +252,7 @@ imports:
   - unicode/norm
   - width
 - name: google.golang.org/appengine
-  version: 5bee14b453b4c71be47ec1781b0fa61c2ea182db
+  version: ad39d7fab7c60b2493fdc318c3d2cdb2128f92a4
   subpackages:
   - internal
   - internal/app_identity
