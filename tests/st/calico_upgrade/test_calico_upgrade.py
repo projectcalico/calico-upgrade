@@ -23,7 +23,7 @@ from nose.plugins.attrib import attr
 from tests.st.test_base import TestBase
 from tests.st.utils.utils import calicoctl, calicoctlv2, \
     name, dump_etcdv2, get_value_etcdv2, get_value_etcdv3, \
-    calicoupgrade, wipe_etcdv2, get_ip, clean_calico_data
+    calicoupgrade, wipe_etcdv2, etcdv2_edit, get_ip, clean_calico_data
 from tests.st.utils.v1_data import data
 
 ETCD_SCHEME = os.environ.get("ETCD_SCHEME", "http")
@@ -255,6 +255,40 @@ class TestCalicoUpgrade(TestBase):
 
         datastore_ready_rc = _get_ready_etcdv3()
         assert datastore_ready_rc is True
+
+    def test_prednat_no_types(self):
+        """
+        Test failed conversion with dry-run and start with preDNAT and default Types.
+        """
+
+        # Insert using etcdctl because it is not possible to insert a policy with no
+        # types using calicoctl from v2.6.5
+        testdata = '{ "order":200,"inbound_rules":[{"action":"allow","src_nets":["10.10.10.2/32","10.10.10.3/32","10.10.10.4/32"]}],"pre_dnat":true}'
+        etcdv2_edit("set /calico/v1/policy/tier/default/policy/custom-allow '" + testdata + "'" )
+
+        logger.debug("INFO: dump of etcdv2:")
+        dump_etcdv2()
+        calicoctlv2("get policy -o yaml")
+
+        rcu = calicoupgrade("dry-run")
+        logger.debug("INFO: calico-upgrade dry-run should return 0.")
+        rcu.assert_no_error()
+
+        report1 = "convertednames"
+        dr_report1 = _get_readlines(report1)
+        logger.debug(
+            "INFO: calico-upgrade dry-run %s output:\n%s" % (report1, dr_report1))
+
+        rcu = calicoupgrade("start")
+        logger.debug("INFO: calico-upgrade start should return 0.")
+        rcu.assert_no_error()
+
+        st_report1 = _get_readlines(report1)
+        logger.debug(
+            "INFO: calico-upgrade start %s output:\n%s" % (report1, st_report1))
+
+        assert dr_report1 == st_report1, \
+            "INFO: calico-upgrade dry-run and start %s files are not equal" % report1
 
 
 @parameterized.expand([
