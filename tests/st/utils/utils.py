@@ -629,6 +629,20 @@ def dump_etcdv2():
                 "'")
 
 
+def etcdv2_edit(etcdcmd):
+    etcd_container_name = "calico-etcd"
+    tls_vars = ""
+    if ETCD_SCHEME == "https":
+        # Etcd is running with SSL/TLS, require key/certificates
+        etcd_container_name = "calico-etcd-ssl"
+        tls_vars = (",ETCDCTL_CACERT=/etc/calico/certs/ca.pem" +
+                    ",ETCDCTL_CERT=/etc/calico/certs/client.pem" +
+                    ",ETCDCTL_KEY=/etc/calico/certs/client-key.pem")
+
+    log_and_run("docker exec --env ETCDCTL_API=2" + tls_vars + " " + etcd_container_name + 
+                " etcdctl " + etcdcmd)
+
+
 def get_value_etcdv3(flag_key):
     etcd_container_name = "calico-etcd"
     tls_vars = ""
