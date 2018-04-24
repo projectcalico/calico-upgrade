@@ -1,0 +1,87 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: complete-upgrade
+  namespace: kube-system
+spec:
+  template:
+    spec:
+      hostNetwork: true
+      serviceAccountName: calico-upgrade-job
+      restartPolicy: Never
+      containers:
+        - name: migrate-completion
+          image: $UPGRADE_CONTAINER
+          command: ['/bin/sh', '-c', '/completion-job.sh']
+          env:
+            - name: EXPECTED_NODE_IMAGE
+              valueFrom:
+                configMapKeyRef:
+                  name: calico-config
+                  key: node_image
+            # The location of the Calico etcd cluster.
+            - name: CALICO_ETCD_ENDPOINTS
+              valueFrom:
+                configMapKeyRef:
+                  name: calico-config
+                  key: etcd_endpoints
+            - name: CALICO_ETCD_CA_CERT_FILE
+              valueFrom:
+                configMapKeyRef:
+                  name: calico-config
+                  key: etcd_ca
+            # Location of the client key for etcd.
+            - name: CALICO_ETCD_KEY_FILE
+              valueFrom:
+                configMapKeyRef:
+                  name: calico-config
+                  key: etcd_key
+            # Location of the client certificate for etcd.
+            - name: CALICO_ETCD_CERT_FILE
+              valueFrom:
+                configMapKeyRef:
+                  name: calico-config
+                  key: etcd_cert
+            # The location of the Calico etcd cluster.
+            - name: CALICO_APIV1_ETCD_ENDPOINTS
+              valueFrom:
+                configMapKeyRef:
+                  name: calico-config
+                  key: etcd_endpoints
+            - name: CALICO_APIV1_ETCD_CA_CERT_FILE
+              valueFrom:
+                configMapKeyRef:
+                  name: calico-config
+                  key: etcd_ca
+            # Location of the client key for etcd.
+            - name: CALICO_APIV1_ETCD_KEY_FILE
+              valueFrom:
+                configMapKeyRef:
+                  name: calico-config
+                  key: etcd_key
+            # Location of the client certificate for etcd.
+            - name: CALICO_APIV1_ETCD_CERT_FILE
+              valueFrom:
+                configMapKeyRef:
+                  name: calico-config
+                  key: etcd_cert
+            - name: CALICO_APIV1_DATASTORE_TYPE
+              value: "etcdv2"
+          volumeMounts:
+            - mountPath: /calico-secrets
+              name: etcd-certs
+      volumes:
+        # Mount in the etcd TLS secrets with mode 400.
+        # See https://kubernetes.io/docs/concepts/configuration/secret/
+        - name: etcd-certs
+          secret:
+            secretName: calico-etcd-secrets
+            defaultMode: 0400
+
+---
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: calico-upgrade-job
+  namespace: kube-system

@@ -1,0 +1,29 @@
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: calico-upgrade-job
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: calico-upgrade-job
+subjects:
+- kind: ServiceAccount
+  name: calico-upgrade-job
+  namespace: kube-system
+
+---
+
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: calico-upgrade-job
+rules:
+  - apiGroups:
+      - extensions
+    resources:
+      - daemonsets
+      - daemonsets/status
+    verbs:
+      - get
+      - list
+
