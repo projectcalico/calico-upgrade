@@ -29,23 +29,25 @@ func main() {
 	doc := `Usage:
   calico-upgrade [options] <command> [<args>...]
 
-    dry-run   Perform a dry-run of the data migration. This validates that the
-              v1 formatted data will be successfully converted and that the v3
-              datastore is in the correct state for the data migration. This
-              command outputs a full report of any migrated names, migration
-              errors, or migrated name conflicts. See Description section
-              below for details.
-    start     Start the upgrade process. This does the following:
-              -  performs a dry-run to verify the data will be migrated
-                 successfully
-              -  pauses Calico networking: this prevents new endpoints from
-                 being created while allowing existing endpoints to remain
-                 networked
-              -  migrates the data from v1 to v3 format
-    complete  This resumes Calico networking for the v3.x nodes.
-    abort     This aborts the upgrade process by resuming Calico networking
-              for the v2.x nodes.
-    version   Display the version of calico-upgrade.
+    dry-run     Perform a dry-run of the data migration. This validates that the
+                v1 formatted data will be successfully converted and that the v3
+                datastore is in the correct state for the data migration. This
+                command outputs a full report of any migrated names, migration
+                errors, or migrated name conflicts. See Description section
+                below for details.
+    start       Start the upgrade process. This does the following:
+                -  performs a dry-run to verify the data will be migrated
+                   successfully
+                -  pauses Calico networking: this prevents new endpoints from
+                   being created while allowing existing endpoints to remain
+                   networked
+                -  migrates the data from v1 to v3 format
+    complete    This resumes Calico networking for the v3.x nodes.
+    abort       This aborts the upgrade process by resuming Calico networking
+                for the v2.x nodes.
+    needed      An upgrade is needed.
+    inprogress  Datastore migration is currently in progress.
+    version     Display the version of calico-upgrade.
 
 Options:
   -h --help               Show this screen.
@@ -88,6 +90,10 @@ Description:
 			commands.Complete(args)
 		case "abort":
 			commands.Abort(args)
+		case "needed":
+			commands.Needed(args)
+		case "inprogress":
+			commands.InProgress(args)
 		case "version":
 			commands.Version(args)
 		default:

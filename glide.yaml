@@ -3,7 +3,7 @@ import:
 - package: github.com/sirupsen/logrus
   version: v1.0.4
 - package: github.com/projectcalico/libcalico-go
-  version: e3351395c934cee118999b9d29508e9280fa75ec
+  version: 9047dcb0ecb57fbfc9924c5aac09db4e019a7588
 - package: github.com/coreos/etcd
   version: v3.3.0
 - package: github.com/spf13/pflag

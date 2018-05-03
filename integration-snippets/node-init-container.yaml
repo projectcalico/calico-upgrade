@@ -1,0 +1,56 @@
+      initContainers:
+        - name: migrate
+          image: $UPGRADE_CONTAINER
+          command: ['/bin/sh', '-c', '/node-init-container.sh']
+          env:
+            # The location of the Calico etcd cluster.
+            - name: CALICO_ETCD_ENDPOINTS
+              valueFrom:
+                configMapKeyRef:
+                  name: calico-config
+                  key: etcd_endpoints
+            - name: CALICO_ETCD_CA_CERT_FILE
+              valueFrom:
+                configMapKeyRef:
+                  name: calico-config
+                  key: etcd_ca
+            # Location of the client key for etcd.
+            - name: CALICO_ETCD_KEY_FILE
+              valueFrom:
+                configMapKeyRef:
+                  name: calico-config
+                  key: etcd_key
+            # Location of the client certificate for etcd.
+            - name: CALICO_ETCD_CERT_FILE
+              valueFrom:
+                configMapKeyRef:
+                  name: calico-config
+                  key: etcd_cert
+            # The location of the Calico etcd cluster.
+            - name: CALICO_APIV1_ETCD_ENDPOINTS
+              valueFrom:
+                configMapKeyRef:
+                  name: calico-config
+                  key: etcd_endpoints
+            - name: CALICO_APIV1_ETCD_CA_CERT_FILE
+              valueFrom:
+                configMapKeyRef:
+                  name: calico-config
+                  key: etcd_ca
+            # Location of the client key for etcd.
+            - name: CALICO_APIV1_ETCD_KEY_FILE
+              valueFrom:
+                configMapKeyRef:
+                  name: calico-config
+                  key: etcd_key
+            # Location of the client certificate for etcd.
+            - name: CALICO_APIV1_ETCD_CERT_FILE
+              valueFrom:
+                configMapKeyRef:
+                  name: calico-config
+                  key: etcd_cert
+            - name: CALICO_APIV1_DATASTORE_TYPE
+              value: "etcdv2"
+          volumeMounts:
+            - mountPath: /calico-secrets
+              name: etcd-certs

@@ -17,6 +17,7 @@ VERSIONS_FILE?=$(CALICO_UPGRADE_DIR)../_data/versions.yml
 # overriden (by the environment).
 CALICOCTL_VER?=master
 CALICOCTL_V2_VER?=v1.6.x-series
+K8S_VERSION?=v1.8.1
 
 # Construct the calico/ctl names we'll use to download calicoctl and extract the
 # binaries.
@@ -24,6 +25,7 @@ $(info $(shell printf "%-21s = %-10s\n" "CALICOCTL_VER" $(CALICOCTL_VER)))
 $(info $(shell printf "%-21s = %-10s\n" "CALICOCTL_V2_VER" $(CALICOCTL_V2_VER)))
 CTL_CONTAINER_NAME?=calico/ctl:$(CALICOCTL_VER)
 CTL_CONTAINER_V2_NAME?=calico/ctl:$(CALICOCTL_V2_VER)
+KUBECTL_URL=https://dl.k8s.io/$(K8S_VERSION)/kubernetes-client-linux-amd64.tar.gz
 
 ###############################################################################
 # calico-upgrade build
@@ -55,6 +57,9 @@ LDFLAGS=-ldflags "-X $(PACKAGE_NAME)/pkg/commands.VERSION=$(CALICO_UPGRADE_VERSI
 
 LIBCALICOGO_PATH?=none
 
+# curl should failed on 404
+CURL=curl -sSf
+
 calico/upgrade: $(CALICO_UPGRADE_CONTAINER_CREATED)      ## Create the calico/upgrade image
 
 .PHONY: clean-calico-upgrade
@@ -80,9 +85,16 @@ vendor: glide.yaml
       glide install -strip-vendor'
 
 # build calico_upgrade image
-$(CALICO_UPGRADE_CONTAINER_CREATED): pkg/Dockerfile.calico_upgrade dist/calico-upgrade
+$(CALICO_UPGRADE_CONTAINER_CREATED): pkg/Dockerfile.calico_upgrade dist/calico-upgrade dist/kubectl
 	docker build -t $(CALICO_UPGRADE_CONTAINER_NAME) -f pkg/Dockerfile.calico_upgrade .
 	touch $@
+
+# Download kubectl instead of copying from hyperkube because it is 4x smaller
+# this way
+dist/kubectl:
+	$(CURL) -L $(KUBECTL_URL) -o - | tar -zxvf - -C dist --strip-components=3
+	chmod +x $(@D)/*
+
 
 ## Build calico-upgrade
 binary: $(CALICO_UPGRADE_FILES) vendor
