@@ -1,14 +1,14 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: complete-upgrade
+  name: calico-complete-upgrade
   namespace: kube-system
 spec:
   template:
     spec:
       hostNetwork: true
       serviceAccountName: calico-upgrade-job
-      restartPolicy: Never
+      restartPolicy: OnFailure
       containers:
         - name: migrate-completion
           image: $UPGRADE_CONTAINER
