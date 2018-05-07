@@ -13,13 +13,14 @@ DS_NAME=${DS_NAME:-"calico-node"}
 DS_SELECTOR=${DS_SELECTOR:-"k8s-app=$DS_NAME"}
 DS_IMAGE_SELECTOR="{.items[?(@.metadata.name=='$DS_NAME')].spec.template.spec.containers[?(@.name=='calico-node')].image}"
 EXPECTED_NODE_IMAGE=${EXPECTED_NODE_IMAGE:-"quay.io/calico/node:v3.1.1"}
+NAMESPACE=${NAMESPACE:-"kube-system"}
 
 echo "Ensure that the Daemonset $DS_NAME is rolled out, and the calico-node"
 echo "container is running $EXPECTED_NODE_IMAGE before completing the upgrade"
 
 IsDsImageCorrect()
 {
-	image=$(kubectl get daemonset --selector=$DS_SELECTOR -n kube-system \
+	image=$(kubectl -n $NAMESPACE get daemonset --selector=$DS_SELECTOR \
 		-o jsonpath="$DS_IMAGE_SELECTOR")
 	if [ $? -ne 0 ]; then
 		return 1
@@ -29,7 +30,7 @@ IsDsImageCorrect()
 
 IsDsRollOutFinished()
 {
-	rollout_status=$(kubectl rollout status daemonset/$DS_NAME)
+	rollout_status=$(kubectl -n $NAMESPACE rollout status daemonset/$DS_NAME)
 	if [ $? -ne 0 ]; then
 		return 1
 	fi
@@ -37,7 +38,7 @@ IsDsRollOutFinished()
 }
 
 echo "=== Current $DS_NAME Daemonset ==="
-kubectl get daemonset --selector=$DS_SELECTOR -n kube-system
+kubectl -n $NAMESPACE get daemonset --selector=$DS_SELECTOR
 
 # Wait for calico-node daemonset to have a v3 calico-node image
 while ! IsDsImageCorrect; do
@@ -46,7 +47,7 @@ while ! IsDsImageCorrect; do
 done
 
 echo "=== Current $DS_NAME Daemonset ==="
-kubectl get daemonset --selector=$DS_SELECTOR -n kube-system
+kubectl -n $NAMESPACE get daemonset --selector=$DS_SELECTOR
 
 # Wait for daemonset to finish rollout
 while ! IsDsRollOutFinished; do
@@ -57,7 +58,7 @@ done
 # Verify daemonset still has v3 calico-node image, in case they've done a rollback
 if ! IsDsImageCorrect; then
     echo "=== Current $DS_NAME Daemonset ==="
-    kubectl get daemonset --selector=$DS_SELECTOR -n kube-system \
+    kubectl -n $NAMESPACE get daemonset --selector=$DS_SELECTOR \
 		-o jsonpath="$DS_IMAGE_SELECTOR"
     echo ""
 	echo "After waiting for $DS_NAME to finish rolling out it does not have the expected"
