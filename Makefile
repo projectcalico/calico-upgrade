@@ -5,7 +5,7 @@ all: dist/calico-upgrade dist/calico-upgrade-darwin-amd64 dist/calico-upgrade-wi
 
 ###############################################################################
 # Go Build versions
-GO_BUILD_VER:=v0.12
+GO_BUILD_VER:=v0.16
 CALICO_BUILD?=calico/go-build:$(GO_BUILD_VER)
 
 ###############################################################################
@@ -17,7 +17,8 @@ VERSIONS_FILE?=$(CALICO_UPGRADE_DIR)../_data/versions.yml
 # overriden (by the environment).
 CALICOCTL_VER?=master
 CALICOCTL_V2_VER?=v1.6.x-series
-K8S_VERSION?=v1.8.1
+K8S_VERSION?=v1.10.4
+ETCD_VER?=v3.3.7
 
 # Construct the calico/ctl names we'll use to download calicoctl and extract the
 # binaries.
@@ -248,7 +249,7 @@ run-etcd: stop-etcd
 	docker run --detach \
 	--net=host \
 	--entrypoint=/usr/local/bin/etcd \
-	--name calico-etcd quay.io/coreos/etcd:v3.1.7 \
+	--name calico-etcd quay.io/coreos/etcd:$(ETCD_VER) \
 	--advertise-client-urls "http://$(LOCAL_IP_ENV):2379,http://127.0.0.1:2379,http://$(LOCAL_IP_ENV):4001,http://127.0.0.1:4001" \
 	--listen-client-urls "http://0.0.0.0:2379,http://0.0.0.0:4001"
 
