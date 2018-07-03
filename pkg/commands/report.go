@@ -62,7 +62,7 @@ func outputCheckPermsAndExit(output string) {
 	ch.Separator()
 	ch.Error("Unable to prepare the reports directory for writing the migration reports. " +
 		"Please ensure your file permissions allow the following:")
-	ch.Bullet(fmt.Sprintf("creation of the output directory if it doesn't already exist " +
+	ch.Bullet(fmt.Sprintf("creation of the output directory if it doesn't already exist "+
 		"(output directory is %s)", output))
 	ch.Bullet("creation and deletion of files in the output directory.")
 	ch.Msg("If required, use the --output-dir option to specify a different output directory.")
