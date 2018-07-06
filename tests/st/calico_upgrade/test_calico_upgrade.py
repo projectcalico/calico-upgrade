@@ -36,6 +36,7 @@ logging.basicConfig(level=logging.DEBUG, format="%(message)s")
 logger = logging.getLogger(__name__)
 
 CONVERT_ERROR_MSG = "ERROR: Error converting data, check output for details and resolve issues"
+not_expected = ["validationerrors", "conversionerrors", "nameclashes"]
 
 
 class TestCalicoUpgrade(TestBase):
@@ -81,6 +82,7 @@ class TestCalicoUpgrade(TestBase):
 
         rcu = calicoupgrade("dry-run")
         logger.debug("INFO: calico-upgrade dry-run should return 0.")
+        rcu.check_reports(not_expected)
         rcu.assert_no_error()
 
         ready_output = get_value_etcdv2("/calico/v1/Ready")
@@ -92,6 +94,7 @@ class TestCalicoUpgrade(TestBase):
 
         rcu = calicoupgrade("start", prompt_resp)
         logger.debug("INFO: calico-upgrade start should return 0.")
+        rcu.check_reports(not_expected)
         rcu.assert_no_error()
 
         ready_output = get_value_etcdv2("/calico/v1/Ready")
@@ -130,6 +133,7 @@ class TestCalicoUpgrade(TestBase):
 
         rcu = calicoupgrade("complete", prompt_resp)
         logger.debug("INFO: calico-upgrade complete should return 0.")
+        rcu.check_reports(not_expected)
         rcu.assert_no_error()
 
         ready_output = get_value_etcdv2("/calico/v1/Ready")
@@ -218,6 +222,7 @@ class TestCalicoUpgrade(TestBase):
 
         rcu = calicoupgrade("start", prompt_resp)
         logger.debug("INFO: calico-upgrade start should return 0.")
+        rcu.check_reports(not_expected)
         rcu.assert_no_error()
 
         ready_output = get_value_etcdv2("/calico/v1/Ready")
@@ -228,6 +233,7 @@ class TestCalicoUpgrade(TestBase):
 
         rcu = calicoupgrade("abort", prompt_resp)
         logger.debug("INFO: calico-upgrade abort should return 0.")
+        rcu.check_reports(not_expected)
         rcu.assert_no_error()
 
         ready_output = get_value_etcdv2("/calico/v1/Ready")
@@ -238,6 +244,7 @@ class TestCalicoUpgrade(TestBase):
 
         rcu = calicoupgrade("start --ignore-v3-data", prompt_resp)
         logger.debug("INFO: calico-upgrade start should return 0.")
+        rcu.check_reports(not_expected)
         rcu.assert_no_error()
 
         ready_output = get_value_etcdv2("/calico/v1/Ready")
@@ -248,6 +255,7 @@ class TestCalicoUpgrade(TestBase):
 
         rcu = calicoupgrade("complete", prompt_resp)
         logger.debug("INFO: calico-upgrade complete should return 0.")
+        rcu.check_reports(not_expected)
         rcu.assert_no_error()
 
         ready_output = get_value_etcdv2("/calico/v1/Ready")

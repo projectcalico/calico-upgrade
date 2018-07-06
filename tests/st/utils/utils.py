@@ -147,6 +147,22 @@ class CalicoctlOutput:
         if text:
             self.assert_output_contains(text)
 
+    def check_reports(self, reports):
+        """
+        Checking for unexpected reports.
+        """
+        unexpected_report = False
+        for report in reports:
+            if report in self.output:
+                unexpected_report = True
+                file_output = open("/code/calico-upgrade-report/" + report, 'rU')
+                file_output_lines = file_output.read()
+                file_output.close()
+                logger.debug("ERROR: Command generated a unexpected report:\n/code/calico-upgrade-report/%s" % report)
+                print file_output_lines
+        if unexpected_report:
+            logger.debug("ERROR: Unexpected report output displayed above.")
+
     def assert_output_contains(self, text):
         """
         Assert the calicoctl command output contains the supplied text.
