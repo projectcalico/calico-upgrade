@@ -1,0 +1,13 @@
+FROM ppc64le/alpine:3.7
+
+ADD dist/calico-upgrade-linux-ppc64le ./calico-upgrade
+ADD dist/kubectl-ppc64le ./kubectl
+ADD integration-snippets/node-init-container.sh ./
+ADD integration-snippets/controller-init.sh ./
+ADD integration-snippets/completion-job.sh ./
+
+ENV CALICO_UPGRADE_CONTAINER=TRUE
+ENV PATH=$PATH:/
+
+WORKDIR /root
+ENTRYPOINT ["/calico-upgrade"]

@@ -1,13 +1,10 @@
-FROM alpine:3.4
+FROM alpine:3.7
 
 ADD dist/calico-upgrade ./calico-upgrade
-ADD dist/kubectl ./kubectl
+ADD dist/kubectl-amd64 ./kubectl
 ADD integration-snippets/node-init-container.sh ./
-RUN chmod +x ./node-init-container.sh
 ADD integration-snippets/controller-init.sh ./
-RUN chmod +x ./controller-init.sh
 ADD integration-snippets/completion-job.sh ./
-RUN chmod +x ./completion-job.sh
 
 ENV CALICO_UPGRADE_CONTAINER=TRUE
 ENV PATH=$PATH:/
